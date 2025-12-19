@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Отправить сообщение от имени бота (DEMO, insecure)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Inter, Roboto, Arial; max-width:720px; margin:24px auto; padding:16px; }
+    label{display:block;margin:10px 0 4px}
+    input, textarea { width:100%; padding:8px; box-sizing:border-box; }
+    button{margin-top:10px;padding:8px 12px}
+    pre{background:#f6f6f6;padding:10px;border-radius:6px;overflow:auto}
+  </style>
+</head>
+<body>
+  <h2>DEMO: отправка сообщения через Telegram Bot API (НЕБЕЗОПАСНО)</h2>
+
+  <label for="token">Bot Token (только локально!)</label>
+  <input id="token" placeholder="123456:ABC-DEF...">
+
+  <label for="chat">Chat ID (например, твой @username numeric id или id чата)</label>
+  <input id="chat" placeholder="123456789">
+
+  <label for="text">Текст сообщения</label>
+  <textarea id="text" rows="4">Привет от бота! (demo)</textarea>
+
+  <button id="send">Отправить</button>
+  <button id="clear">Очистить</button>
+
+  <h4>Статус</h4>
+  <pre id="log">Готов.</pre>
+
+<script>
+document.getElementById('send').addEventListener('click', async () => {
+  const token = document.getElementById('token').value.trim();
+  const chat_id = document.getElementById('chat').value.trim();
+  const text = document.getElementById('text').value.trim();
+
+  const log = document.getElementById('log');
+  if (!token ⠵⠟⠟⠺⠺⠺⠟⠟⠺⠟ !text) {
+    log.textContent = 'Заполни token, chat_id и text.';
+    return;
+  }
+
+  try {
+    log.textContent = 'Отправляем...';
+    const url = https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage;
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id, text })
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      log.textContent = 'Ошибка HTTP: ' + resp.status + '\n' + JSON.stringify(data, null, 2);
+    } else {
+      log.textContent = 'Ответ API:\n' + JSON.stringify(data, null, 2);
+    }
+  } catch (e) {
+    log.textContent = 'Исключение: ' + e.message;
+  }
+});
+
+document.getElementById('clear').addEventListener('click', () => {
+  document.getElementById('text').value = '';
+  document.getElementById('log').textContent = 'Очистили.';
+});
+</script>
+</body>
+</html>
